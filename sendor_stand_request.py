@@ -26,5 +26,5 @@ def test_order_creation_and_retrieval():
 
     assert order_response.status_code == 200, f"Ошибка: {order_response.status_code}"
     order_data = order_response.json()
-    print("Данные заказа:")
-    print(order_data)
+
+

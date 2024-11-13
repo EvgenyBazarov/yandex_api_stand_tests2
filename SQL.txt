@@ -1,21 +1,39 @@
 Задание 1
-Перед запуском запроса, нужно в Postman создать 3 курера и несколько заказов. Курьеры должны принять имеющиеся заказы.
-Запрос:
-      SELECT c.login, COUNT(o.id) AS "deliveryCount" 
-      FROM "Couriers" AS c 
-      LEFT JOIN "Orders" AS o ON c.id = o."courierId" 
-      WHERE o."inDelivery" = true 
-      GROUP BY c.login;
+Представь: тебе нужно проверить, отображается ли созданный заказ в базе данных.
+Для этого: выведи список логинов курьеров с количеством их заказов в статусе «В доставке» (поле inDelivery = true). 
+
+Выполнение.
+Перед запуском запроса, нужно в Postman создать 2 курера и 2 заказа. Курьеры должны принять имеющиеся заказы.
+Запрос к базе данных:
+select login as CourierLogin, COUNT(*) filter (where "inDelivery") as OrdersInDelivery 
+  FROM
+  (SELECT login, o."inDelivery"
+    FROM "Orders" as o
+    INNER JOIN "Couriers" as c ON o."courierId" = c."id") as CouriesDiliveries
+  group by login;
 
 Задание 2
-После реализации запроса из задания 1, запрос для задания 2 будет следующий:
-SELECT 
-    tracker_id, 
-    CASE 
-        WHEN finished = true THEN 2
-        WHEN canceled = true THEN -1
-        WHEN inDelivery = true THEN 1
-        ELSE 0 
-    END AS status
-FROM 
-    orders;
+Ты тестируешь статусы заказов. Нужно убедиться, что в базе данных они записываются корректно.
+Для этого: выведи все трекеры заказов и их статусы. 
+Статусы определяются по следующему правилу:
+Если поле finished == true, то вывести статус 2.
+Если поле canсelled == true, то вывести статус -1.
+Если поле inDelivery == true, то вывести статус 1.
+Для остальных случаев вывести 0.
+
+Выполнение:
+Перед запуском запроса, нужно в Postman создать 3 курера и 4 заказа. 
+Один курьер должен принять 1 заказ
+Второй курьер должен принять 1 заказ и завершить его
+Третий курьер должен принять заказ и закаж нужно отменить через запрос на ручку: PUT Путь: api/v1/orders/cancel?track=
+Один заказ должен остатья созданным, но не принятым
+Запрос к базе данных:
+select o."track", 
+CASE 
+   WHEN o."finished" = true THEN 2
+   WHEN o."cancelled" = true THEN -1 
+   WHEN o."inDelivery" = true THEN 1
+   ELSE 0 
+END 
+AS Status
+from "Orders" as o;
